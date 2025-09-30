@@ -3,25 +3,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import {
-  Pagination,
-  Modal,
-  Card,
-  Skeleton,
-  Button,
-  Form,
-  Input,
-  Select,
+import { 
+  Pagination, 
+  Skeleton, 
+  Button, 
+  Modal, 
+  Descriptions,
+  Tag
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EyeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import styles from "./page.module.css";
 
-const { TextArea } = Input;
-const { Option } = Select;
-
-export default function Tarefas() {
-  const router = useRouter();
+export default function Home() {
   const [data, setData] = useState({
     tarefas: [],
     users: [],
@@ -29,130 +24,58 @@ export default function Tarefas() {
     current: 1,
     pageSize: 5,
   });
-
-  const [modalInfo, setModalInfo] = useState({
-    visible: false,
-    tarefa: null,
-    user: null,
-    loading: false,
-  });
-
-  const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [form] = Form.useForm();
+  
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchTarefas = async () => {
-      try {
-        const [tarefasResponse, usersResponse] = await Promise.all([
-          axios.get("http://localhost:4000/api/task"),
-          axios.get("http://localhost:4000/api/users"),
-        ]);
-
-        setData({
-          tarefas: tarefasResponse.data,
-          users: usersResponse.data,
-          loading: false,
-          current: 1,
-          pageSize: 5,
-        });
-      } catch {
-        toast.error("Erro ao carregar tarefas");
-        setData((d) => ({ ...d, loading: false }));
-      }
-    };
-
     fetchTarefas();
   }, []);
 
-  const openModal = async (tarefa) => {
-    const user = data.users.find((u) => u.id === tarefa.user_id);
-    setModalInfo({ visible: true, tarefa, user, loading: false });
-  };
-
-  const handleCreateTask = async (values) => {
+  const fetchTarefas = async () => {
     try {
-      console.log("🚀 Enviando dados para criar tarefa:", values);
+      const [tarefasResponse, usersResponse] = await Promise.all([
+        axios.get("http://localhost:4000/api/task"),
+        axios.get("http://localhost:4000/api/users"),
+      ]);
 
-      const response = await axios.post(
-        "http://localhost:4000/api/task",
-        values,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("✅ Tarefa criada com sucesso:", response.data);
-
-      setData((prevData) => ({
-        ...prevData,
-        tarefas: [...prevData.tarefas, response.data],
-      }));
-
-      setCreateModalVisible(false);
-      form.resetFields();
-      toast.success("Tarefa criada com sucesso!");
+      setData({
+        tarefas: tarefasResponse.data,
+        users: usersResponse.data,
+        loading: false,
+        current: 1,
+        pageSize: 5,
+      });
     } catch (error) {
-      console.error("❌ Erro ao criar tarefa:", error);
-      console.error("❌ Resposta do servidor:", error.response?.data);
-      console.error("❌ Status:", error.response?.status);
-
-      if (error.response?.status === 400) {
-        toast.error(
-          "Erro: Dados inválidos - " +
-            (error.response?.data?.message || "Verifique os campos")
-        );
-      } else if (error.response?.status === 500) {
-        toast.error("Erro interno do servidor");
-      } else if (error.code === "ERR_NETWORK") {
-        toast.error("Erro: Não foi possível conectar com o backend");
-      } else {
-        toast.error(
-          "Erro ao criar tarefa: " +
-            (error.response?.data?.message || error.message)
-        );
-      }
+      console.error("Erro ao buscar dados:", error);
+      toast.error("Erro ao carregar dados!");
+      setData(prev => ({ ...prev, loading: false }));
     }
   };
 
-  const testCreateAPI = async () => {
-    const testData = {
-      title: "Teste de Conexão",
-      description: "Esta é uma tarefa de teste para verificar a API",
-      status: "Pendente",
-      user_id: data.users.length > 0 ? data.users[0].id : 1,
-    };
-
-    console.log("🧪 Testando API de criação com dados:", testData);
-
+  const handleDelete = async (id) => {
     try {
-      const response = await axios.post(
-        "http://localhost:4000/api/tarefas",
-        testData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("✅ Teste da API bem-sucedido:", response.data);
-      toast.success("✅ API de criação está funcionando!");
-
-      // Atualizar lista
+      await axios.delete(`http://localhost:4000/api/task/${id}`);
       setData((prevData) => ({
         ...prevData,
-        tarefas: [...prevData.tarefas, response.data],
+        tarefas: prevData.tarefas.filter((tarefa) => tarefa.id !== id),
       }));
+      toast.success("Tarefa excluída com sucesso!");
     } catch (error) {
-      console.error("❌ Teste da API falhou:", error);
-      console.error("❌ Resposta completa:", error.response);
-      toast.error(
-        "❌ Falha no teste da API: " +
-          (error.response?.data?.message || error.message)
-      );
+      console.error("Erro ao excluir tarefa:", error);
+      toast.error("Erro ao excluir tarefa!");
     }
+  };
+
+  const openTaskDetails = (task) => {
+    setSelectedTask(task);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedTask(null);
   };
 
   const paginatedTarefas = () => {
@@ -160,130 +83,233 @@ export default function Tarefas() {
     return data.tarefas.slice(start, start + data.pageSize);
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Pendente": return "red";
+      case "Em andamento": return "orange";
+      case "Concluído": return "green";
+      default: return "default";
+    }
+  };
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Pendente": return "#dc2626";
+      case "Em andamento": return "#d97706";
+      case "Concluído": return "#16a34a";
+      default: return "#6b7280";
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.title}>
-        <h1>Lista de Tarefas</h1>
-        <Button
-          type="primary"
-          href="/create"
-          icon={<PlusOutlined />}
-          onClick={() => setCreateModalVisible(true)}
-          style={{ marginTop: "10px" }}
-        >
-          Adicionar Tarefa
-        </Button>
+      <h1 className={styles.title}>Gerenciador de Tarefas</h1>
+      
+      <Button 
+        type="primary"
+        size="large"
+        icon={<PlusOutlined />}
+        onClick={() => router.push("/create")}
+        style={{
+          background: "linear-gradient(135deg, #1e40af, #3b82f6)",
+          border: "none",
+          borderRadius: "12px",
+          height: "50px",
+          fontSize: "16px",
+          fontWeight: "600",
+          marginBottom: "30px"
+        }}
+      >
+        Nova Tarefa
+      </Button>
+
+      <div className={styles.cardsContainer}>
+        {data.loading ? (
+          Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className={styles.card}>
+              <Skeleton active />
+            </div>
+          ))
+        ) : (
+          paginatedTarefas().map((tarefa) => (
+            <div 
+              key={tarefa.id} 
+              className={styles.card}
+              onClick={() => openTaskDetails(tarefa)}
+              style={{ cursor: "pointer" }}
+            >
+              <div>
+                <h3 className={styles.cardTitle}>{tarefa.title}</h3>
+                <div className={styles.cardDescription}>
+                  <p style={{ marginBottom: "8px" }}>
+                    {tarefa.description.length > 100 
+                      ? `${tarefa.description.substring(0, 100)}...` 
+                      : tarefa.description
+                    }
+                  </p>
+                  <p style={{ fontWeight: "500" }}>
+                    Status: <span style={{ color: getStatusStyle(tarefa.status) }}>{tarefa.status}</span>
+                  </p>
+                  {tarefa.User && (
+                    <p style={{ marginTop: "4px" }}>
+                      Responsável: {tarefa.User.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                <Button 
+                  type="link"
+                  icon={<EyeOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openTaskDetails(tarefa);
+                  }}
+                  style={{ color: "#1e40af", fontWeight: "500" }}
+                >
+                  Ver Detalhes
+                </Button>
+                <Button 
+                  type="link"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/edit/${tarefa.id}`);
+                  }}
+                  style={{ color: "#1e40af", fontWeight: "500" }}
+                >
+                  Editar
+                </Button>
+                <Button 
+                  type="link"
+                  danger
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(tarefa.id);
+                  }}
+                  style={{ fontWeight: "500" }}
+                >
+                  Excluir
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
-      <Pagination
-        current={data.current}
-        pageSize={data.pageSize}
-        total={data.tarefas.length}
-        onChange={(page, size) =>
-          setData((d) => ({ ...d, current: page, pageSize: size }))
-        }
-        showSizeChanger
-        pageSizeOptions={["5", "10", "50"]}
-      />
-
-      {data.loading ? (
-        <div style={{ textAlign: "center", padding: "50px" }}>
-          <Skeleton active />
-        </div>
-      ) : (
-        <div className={styles.cardsContainer}>
-          {paginatedTarefas().map((tarefa) => {
-            const user = data.users.find((u) => u.id === tarefa.user_id);
-            return (
-              <Card
-                key={tarefa.id}
-                className={styles.card}
-                hoverable
-                onClick={() => openModal(tarefa)}
-                title={tarefa.title}
-              >
-                <p>
-                  <strong>Responsável:</strong>{" "}
-                  {user?.name || "Usuário não encontrado"}
-                </p>
-              </Card>
-            );
-          })}
+      {data.tarefas.length > 0 && (
+        <div className={styles.pagination}>
+          <Pagination
+            current={data.current}
+            total={data.tarefas.length}
+            pageSize={data.pageSize}
+            onChange={(page, size) =>
+              setData((d) => ({ ...d, current: page, pageSize: size }))
+            }
+            showSizeChanger
+            pageSizeOptions={["5", "10", "15"]}
+          />
         </div>
       )}
 
+      {/* Modal de Detalhes da Tarefa */}
       <Modal
-        title={`Tarefa: ${modalInfo.tarefa?.title}`}
-        open={modalInfo.visible}
-        onCancel={() =>
-          setModalInfo({
-            visible: false,
-            tarefa: null,
-            user: null,
-            loading: false,
-          })
+        title={
+          <div style={{ fontSize: "1.4rem", fontWeight: "600", color: "#1e40af" }}>
+            <EyeOutlined style={{ marginRight: "8px" }} />
+            Detalhes da Tarefa
+          </div>
         }
-        onOk={() =>
-          setModalInfo({
-            visible: false,
-            tarefa: null,
-            user: null,
-            loading: false,
-          })
-        }
-        width={600}
+        open={modalVisible}
+        onCancel={closeModal}
+        footer={[
+          <Button key="close" onClick={closeModal}>
+            Fechar
+          </Button>,
+          <Button 
+            key="edit" 
+            type="primary" 
+            onClick={() => {
+              closeModal();
+              router.push(`/edit/${selectedTask?.id}`);
+            }}
+            style={{
+              background: "linear-gradient(135deg, #1e40af, #3b82f6)",
+              border: "none"
+            }}
+          >
+            Editar Tarefa
+          </Button>
+        ]}
+        width={700}
+        centered
       >
-        {modalInfo.loading ? (
-          <Skeleton active />
-        ) : modalInfo.tarefa ? (
-          <div>
-            <p>
-              <span style={{ fontWeight: "bold" }}>ID:</span>{" "}
-              {modalInfo.tarefa.id}
-            </p>
-            <p>
-              <span style={{ fontWeight: "bold" }}>Título:</span>{" "}
-              {modalInfo.tarefa.title}
-            </p>
-            <p>
-              <span style={{ fontWeight: "bold" }}>Descrição:</span>{" "}
-              {modalInfo.tarefa.description}
-            </p>
-            <p>
-              <span style={{ fontWeight: "bold" }}>Status:</span>{" "}
-              {modalInfo.tarefa.status}
-            </p>
-            <p>
-              <span style={{ fontWeight: "bold" }}>Responsável:</span>{" "}
-              {modalInfo.user?.name || "Usuário não encontrado"}
-            </p>
-            <p>
-              <span style={{ fontWeight: "bold" }}>Email:</span>{" "}
-              {modalInfo.user?.email || "Email não encontrado"}
-            </p>
-            <div style={{ marginTop: "20px", textAlign: "center" }}>
-              <Button
-                type="primary"
-                onClick={() => {
-                  router.push(`/edit/${modalInfo.tarefa.id}`);
-                  setModalInfo({
-                    visible: false,
-                    tarefa: null,
-                    user: null,
-                    loading: false,
-                  });
+        {selectedTask && (
+          <Descriptions 
+            bordered 
+            column={1}
+            style={{ marginTop: "16px" }}
+            labelStyle={{ 
+              fontWeight: "600", 
+              color: "#1e40af",
+              backgroundColor: "rgba(219, 234, 254, 0.5)",
+              width: "150px"
+            }}
+            contentStyle={{ 
+              backgroundColor: "white",
+              padding: "12px 16px"
+            }}
+          >
+            <Descriptions.Item label="ID">
+              #{selectedTask.id}
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="Título">
+              <span style={{ fontSize: "16px", fontWeight: "500" }}>
+                {selectedTask.title}
+              </span>
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="Descrição">
+              <div style={{ lineHeight: "1.6", fontSize: "15px" }}>
+                {selectedTask.description}
+              </div>
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="Status">
+              <Tag 
+                color={getStatusColor(selectedTask.status)}
+                style={{ 
+                  fontSize: "14px", 
+                  padding: "4px 12px",
+                  fontWeight: "500"
                 }}
               >
-                Editar Tarefa
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <p style={{ textAlign: "center" }}>Tarefa não encontrada.</p>
+                {selectedTask.status}
+              </Tag>
+            </Descriptions.Item>
+            
+            <Descriptions.Item label="Responsável">
+              <div style={{ fontSize: "15px", fontWeight: "500" }}>
+                {selectedTask.User ? selectedTask.User.name : "Não atribuído"}
+              </div>
+            </Descriptions.Item>
+            
+          </Descriptions>
         )}
       </Modal>
 
-      <ToastContainer position="top-right" autoClose={4500} />
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }
