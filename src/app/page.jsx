@@ -8,9 +8,6 @@ import {
   Pagination, 
   Skeleton, 
   Button, 
-  Modal, 
-  Descriptions,
-  Tag,
   Select,
   Space
 } from "antd";
@@ -28,8 +25,6 @@ export default function Home() {
     pageSize: 5,
   });
   
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
   const [sortOrder, setSortOrder] = useState('priority'); // 'priority', 'status', 'title', 'date'
   const router = useRouter();
 
@@ -72,11 +67,6 @@ export default function Home() {
     }
   };
 
-  const openTaskDetails = (task) => {
-    setSelectedTask(task);
-    setModalVisible(true);
-  };
-
   const getResponsibleName = (userId) => {
     const user = data.users.find(user => user.id === userId);
     return user ? user.name : 'Usuário não encontrado';
@@ -88,15 +78,6 @@ export default function Home() {
       case 'Média': return 2;
       case 'Baixa': return 3;
       default: return 4;
-    }
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'Alta': return 'red';
-      case 'Média': return 'orange';
-      case 'Baixa': return 'green';
-      default: return 'default';
     }
   };
 
@@ -254,7 +235,7 @@ export default function Home() {
             <div 
               key={tarefa.id} 
               className={styles.card}
-              onClick={() => openTaskDetails(tarefa)}
+              onClick={() => router.push(`/task/${tarefa.id}`)}
               style={{ cursor: "pointer" }}
             >
               <div>
@@ -288,7 +269,7 @@ export default function Home() {
                   icon={<EyeOutlined />}
                   onClick={(e) => {
                     e.stopPropagation();
-                    openTaskDetails(tarefa);
+                    router.push(`/task/${tarefa.id}`);
                   }}
                   style={{ color: "#1e40af", fontWeight: "500" }}
                 >
@@ -335,110 +316,6 @@ export default function Home() {
           />
         </div>
       )}
-
-      {/* Modal de Detalhes da Tarefa */}
-      <Modal
-        title={
-          <div style={{ fontSize: "1.4rem", fontWeight: "600", color: "#1e40af" }}>
-            <EyeOutlined style={{ marginRight: "8px" }} />
-            Detalhes da Tarefa
-          </div>
-        }
-        open={modalVisible}
-        onCancel={closeModal}
-        footer={[
-          <Button key="close" onClick={closeModal}>
-            Fechar
-          </Button>,
-          <Button 
-            key="edit" 
-            type="primary" 
-            onClick={() => {
-              closeModal();
-              router.push(`/edit/${selectedTask?.id}`);
-            }}
-            style={{
-              background: "linear-gradient(135deg, #1e40af, #3b82f6)",
-              border: "none"
-            }}
-          >
-            Editar Tarefa
-          </Button>
-        ]}
-        width={700}
-        centered
-      >
-        {selectedTask && (
-          <Descriptions 
-            bordered 
-            column={1}
-            style={{ marginTop: "16px" }}
-            styles={{ 
-              label: {
-                fontWeight: "600", 
-                color: "#1e40af",
-                backgroundColor: "rgba(219, 234, 254, 0.5)",
-                width: "150px"
-              },
-              content: {
-                backgroundColor: "white",
-                padding: "12px 16px"
-              }
-            }}
-          >
-            <Descriptions.Item label="ID">
-              #{selectedTask.id}
-            </Descriptions.Item>
-            
-            <Descriptions.Item label="Título">
-              <span style={{ fontSize: "16px", fontWeight: "500" }}>
-                {selectedTask.title}
-              </span>
-            </Descriptions.Item>
-            
-            <Descriptions.Item label="Descrição">
-              <div style={{ lineHeight: "1.6", fontSize: "15px" }}>
-                {selectedTask.description}
-              </div>
-            </Descriptions.Item>
-            
-            <Descriptions.Item label="Status">
-              <Tag 
-                color={getStatusColor(selectedTask.status)}
-                style={{ 
-                  fontSize: "14px", 
-                  padding: "4px 12px",
-                  fontWeight: "500"
-                }}
-              >
-                {selectedTask.status}
-              </Tag>
-            </Descriptions.Item>
-            
-            {selectedTask.priority && (
-              <Descriptions.Item label="Prioridade">
-                <Tag 
-                  color={getPriorityColor(selectedTask.priority)}
-                  style={{ 
-                    fontSize: "14px", 
-                    padding: "4px 12px",
-                    fontWeight: "500"
-                  }}
-                >
-                  {selectedTask.priority}
-                </Tag>
-              </Descriptions.Item>
-            )}
-            
-            <Descriptions.Item label="Responsável">
-              <div style={{ fontSize: "15px", fontWeight: "500" }}>
-                {getResponsibleName(selectedTask.user_id)}
-              </div>
-            </Descriptions.Item>
-            
-          </Descriptions>
-        )}
-      </Modal>
 
       <ToastContainer 
         position="top-right" 
