@@ -373,15 +373,17 @@ export default function Home() {
             bordered 
             column={1}
             style={{ marginTop: "16px" }}
-            labelStyle={{ 
-              fontWeight: "600", 
-              color: "#1e40af",
-              backgroundColor: "rgba(219, 234, 254, 0.5)",
-              width: "150px"
-            }}
-            contentStyle={{ 
-              backgroundColor: "white",
-              padding: "12px 16px"
+            styles={{ 
+              label: {
+                fontWeight: "600", 
+                color: "#1e40af",
+                backgroundColor: "rgba(219, 234, 254, 0.5)",
+                width: "150px"
+              },
+              content: {
+                backgroundColor: "white",
+                padding: "12px 16px"
+              }
             }}
           >
             <Descriptions.Item label="ID">
