@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
   Pagination, 
@@ -14,12 +13,12 @@ import {
   Select,
   Space
 } from "antd";
-import { PlusOutlined, EyeOutlined, SortAscendingOutlined, CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined, EyeOutlined, SortAscendingOutlined, DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import styles from "./page.module.css";
+import styles from "./completed.module.css";
 
-export default function Home() {
+export default function CompletedTasks() {
   const [data, setData] = useState({
     tarefas: [],
     users: [],
@@ -44,8 +43,11 @@ export default function Home() {
         axios.get("http://localhost:4000/api/users"),
       ]);
 
+      // Filtrar apenas tarefas concluídas
+      const tarefasConcluidas = tarefasResponse.data.filter(tarefa => tarefa.status === 'Concluído');
+
       setData({
-        tarefas: tarefasResponse.data,
+        tarefas: tarefasConcluidas,
         users: usersResponse.data,
         loading: false,
         current: 1,
@@ -158,7 +160,7 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Gerenciador de Tarefas</h1>
+      <h1 className={styles.title}>Tarefas Concluídas</h1>
       
       <div style={{ 
         display: 'flex', 
@@ -178,68 +180,28 @@ export default function Home() {
             style={{ width: 200 }}
             options={[
               { value: 'priority', label: 'Prioridade' },
-              { value: 'status', label: 'Status' },
               { value: 'title', label: 'Título (A-Z)' }
             ]}
           />
         </Space>
         
-        <Space size="middle">
-          <Button 
-            type="default"
-            size="large"
-            icon={<CheckCircleOutlined />}
-            onClick={() => router.push("/completed")}
-            style={{
-              background: "linear-gradient(135deg, #16a34a, #22c55e)",
-              border: "none",
-              borderRadius: "12px",
-              height: "50px",
-              fontSize: "16px",
-              fontWeight: "600",
-              color: "white"
-            }}
-          >
-            Tarefas Concluídas
-          </Button>
-          
-          <Button 
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
-            onClick={() => router.push("/create")}
-            style={{
-              background: "linear-gradient(135deg, #1e40af, #3b82f6)",
-              border: "none",
-              borderRadius: "12px",
-              height: "50px",
-              fontSize: "16px",
-              fontWeight: "600"
-            }}
-          >
-            Nova Tarefa
-          </Button>
-          
-          <Link href="/about" prefetch>
-          <Button 
-            type="default"
-            size="large"
-            icon={<InfoCircleOutlined />}
-            onClick={() => router.push("/about")}
-            style={{
-              background: "linear-gradient(135deg, #7c3aed, #a855f7)",
-              border: "none",
-              borderRadius: "12px",
-              height: "50px",
-              fontSize: "16px",
-              fontWeight: "600",
-              color: "white"
-            }}
-          >
-            Sobre
-          </Button>
-          </Link>
-        </Space>
+        <Button 
+          type="default"
+          size="large"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => router.push("/")}
+          style={{
+            background: "linear-gradient(135deg, #6b7280, #9ca3af)",
+            border: "none",
+            borderRadius: "12px",
+            height: "50px",
+            fontSize: "16px",
+            fontWeight: "600",
+            color: "white"
+          }}
+        >
+          Voltar
+        </Button>
       </div>
 
       <div className={styles.cardsContainer}>
@@ -296,17 +258,8 @@ export default function Home() {
                 </Button>
                 <Button 
                   type="link"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/edit/${tarefa.id}`);
-                  }}
-                  style={{ color: "#1e40af", fontWeight: "500" }}
-                >
-                  Editar
-                </Button>
-                <Button 
-                  type="link"
                   danger
+                  icon={<DeleteOutlined />}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDelete(tarefa.id);
@@ -349,20 +302,6 @@ export default function Home() {
         footer={[
           <Button key="close" onClick={closeModal}>
             Fechar
-          </Button>,
-          <Button 
-            key="edit" 
-            type="primary" 
-            onClick={() => {
-              closeModal();
-              router.push(`/edit/${selectedTask?.id}`);
-            }}
-            style={{
-              background: "linear-gradient(135deg, #1e40af, #3b82f6)",
-              border: "none"
-            }}
-          >
-            Editar Tarefa
           </Button>
         ]}
         width={700}

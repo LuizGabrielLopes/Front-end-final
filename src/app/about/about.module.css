@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Container principal com gradiente azul */
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px;
+  background: linear-gradient(-45deg, #1e3a8a, #1e40af, #3b82f6, #60a5fa);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+  overflow-x: hidden;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Efeito de partículas no fundo */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(147, 197, 253, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(147, 197, 253, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(147, 197, 253, 0.1) 0%, transparent 50%);
+  animation: float 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(1deg); }
+  66% { transform: translateY(10px) rotate(-1deg); }
+}
+
+/* Título principal com efeito 3D */
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 2;
+  text-shadow: 
+    0 0 10px rgba(147, 197, 253, 0.8),
+    0 0 20px rgba(147, 197, 253, 0.6),
+    0 0 30px rgba(147, 197, 253, 0.4),
+    2px 2px 4px rgba(30, 58, 138, 0.5);
+  background: linear-gradient(45deg, #dbeafe, #bfdbfe, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGlow 3s ease-in-out infinite alternate;
+  letter-spacing: -0.02em;
+}
+
+@keyframes titleGlow {
+  0% { 
+    text-shadow: 
+      0 0 10px rgba(147, 197, 253, 0.6),
+      0 0 20px rgba(147, 197, 253, 0.4),
+      2px 2px 4px rgba(30, 58, 138, 0.5);
+  }
+  100% { 
+    text-shadow: 
+      0 0 20px rgba(147, 197, 253, 1),
+      0 0 40px rgba(147, 197, 253, 0.8),
+      0 0 60px rgba(147, 197, 253, 0.6),
+      2px 2px 4px rgba(30, 58, 138, 0.5);
+  }
+}
+
+/* Card principal com glassmorphism */
+.cardContainer {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 
+    0 8px 32px rgba(30, 58, 138, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  max-width: 800px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Container de texto */
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Título do card */
+.cardTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #dbeafe;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(30, 58, 138, 0.3);
+}
+
+/* Subtítulos */
+.subtitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #bfdbfe;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 1px 2px rgba(30, 58, 138, 0.3);
+}
+
+/* Texto descritivo */
+.description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #e0e7ff;
+  text-shadow: 0 1px 2px rgba(30, 58, 138, 0.2);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Lista de informações */
+.infoList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+.infoItem {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #c7d2fe;
+  text-shadow: 0 1px 2px rgba(30, 58, 138, 0.2);
+}
+
+.infoLabel {
+  font-weight: 700;
+  color: #dbeafe;
+}
+
+/* Botão de ação */
+.actionButton {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border: none;
+  border-radius: 16px;
+  height: 56px;
+  padding: 0 32px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: white;
+  box-shadow: 
+    0 8px 32px rgba(124, 58, 237, 0.5),
+    inset 0 1px 0 rgba(168, 85, 247, 0.3);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.actionButton:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 16px 48px rgba(124, 58, 237, 0.7),
+    inset 0 1px 0 rgba(168, 85, 247, 0.4);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 16px;
+  }
+  
+  .cardContainer {
+    padding: 30px 20px;
+  }
+  
+  .cardTitle {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .description {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px 12px;
+  }
+  
+  .cardContainer {
+    padding: 20px 16px;
+  }
+  
+  .cardTitle {
+    font-size: 1.3rem;
+  }
+}
