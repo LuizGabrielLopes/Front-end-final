@@ -122,6 +122,25 @@ export default function Create() {
           </Form.Item>
 
           <Form.Item
+            name="priority"
+            label={<span style={{ fontWeight: "600", color: "#1e40af", fontSize: "16px" }}>Prioridade</span>}
+            rules={[{ required: true, message: "Por favor, selecione a prioridade!" }]}
+          >
+            <Select 
+              placeholder="Selecione a prioridade"
+              size="large"
+              style={{
+                borderRadius: "12px",
+                fontSize: "16px"
+              }}
+            >
+              <Option value="Baixa">Baixa</Option>
+              <Option value="Média">Média</Option>
+              <Option value="Alta">Alta</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
             name="user_id"
             label={<span style={{ fontWeight: "600", color: "#1e40af", fontSize: "16px" }}>Responsável</span>}
             rules={[{ required: true, message: "Por favor, selecione o responsável!" }]}
